@@ -1,0 +1,76 @@
+filename,label,label_name
+abuse.png,0,negative
+adverse (1).png,0,negative
+adverse (2).png,0,negative
+adverse.png,0,negative
+bleach.png,0,negative
+cry.png,0,negative
+danger.png,0,negative
+dislike (1).png,0,negative
+dislike.png,0,negative
+down (1).png,0,negative
+down (2).png,0,negative
+down.png,0,negative
+harmful.png,0,negative
+loss.png,0,negative
+mocking.png,0,negative
+no (1).png,0,negative
+no.png,0,negative
+nope1.png,0,negative
+old-woman.png,0,negative
+sad.png,0,negative
+shopping.png,0,negative
+smash.png,0,negative
+sorry.png,0,negative
+stop.png,0,negative
+thumbs-down.png,0,negative
+angry (1).png,1,neutral
+angry.png,1,neutral
+bee.png,1,neutral
+bee2.png,1,neutral
+blah-blah-blah.png,1,neutral
+bumping-cars.png,1,neutral
+chat.png,1,neutral
+fairness.png,1,neutral
+glasses.png,1,neutral
+impartial.png,1,neutral
+impartiality.png,1,neutral
+impersonal.png,1,neutral
+lol.png,1,neutral
+mocking (1).png,1,neutral
+mocking.png,1,neutral
+mushroom.png,1,neutral
+music.png,1,neutral
+nuetral1.png,1,neutral
+oops.png,1,neutral
+panda.png,1,neutral
+query.png,1,neutral
+rain.png,1,neutral
+shocked.png,1,neutral
+sick.png,1,neutral
+unbiased.png,1,neutral
+blushing.png,2,positive
+business-man.png,2,positive
+cheer.png,2,positive
+cheerful.png,2,positive
+confident.png,2,positive
+dartboard.png,2,positive
+dignity.png,2,positive
+emoticon.png,2,positive
+encouraging (1).png,2,positive
+encouraging.png,2,positive
+focus-on-the-good.png,2,positive
+free.png,2,positive
+girl.png,2,positive
+good-job.png,2,positive
+great-job.png,2,positive
+hello.png,2,positive
+look.png,2,positive
+love-you.png,2,positive
+ok.png,2,positive
+omg.png,2,positive
+penguin.png,2,positive
+self-confidence.png,2,positive
+so-cute.png,2,positive
+task.png,2,positive
+well-done.png,2,positive
