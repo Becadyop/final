@@ -1,217 +1,224 @@
-# Echo Feeling
+\# Echo Feeling
 
-<<<<<<< HEAD
-Echo Feeling is a multimodal emotion analysis engine designed for ecommerce interaction analysis.
 
-It analyzes:
 
-- Text sentiment
-- Emoji sentiment
-- Sticker sentiment
+!\[PyPI](https://img.shields.io/pypi/v/echo-feeling)
 
-## Installation
+!\[Python](https://img.shields.io/pypi/pyversions/echo-feeling)
 
-Clone the repository:
+!\[License](https://img.shields.io/github/license/Becadyop/final)
 
-git clone https://github.com/Phantom-rv7/Echo_Feeling.git
 
-Install dependencies:
 
-pip install -r requirements.txt
+\*\*Echo Feeling\*\* is a lightweight Python library that analyzes emotional tone from text and returns a simple emotional response.
 
-## Run the API
 
-python -m echo_feeling.api
 
-Server will start at:
+It is designed to be simple, fast, and easy to integrate into applications such as chatbots, AI assistants, and sentiment analysis tools.
 
-http://localhost:5050
 
-## API Endpoint
-
-POST /analyze
-
-Example request:
-
-{
-"text": "I love this product",
-"emoji": "😍"
-}
-=======
-Echo Feeling is a Python package that analyzes customer emotions from text, emojis, and stickers.
-It can be integrated into e-commerce websites, chat systems, or customer review analysis dashboards.
-
-The package provides a simple sentiment engine and a REST API built with Flask so developers can easily connect their applications.
 
 ---
 
-# Features
 
-* Sentiment analysis for customer reviews
-* REST API for easy integration
-* Lightweight Python package
-* Easy integration with e-commerce admin dashboards
-* Works with any backend that can send HTTP requests
 
----
+\## Installation
 
-# Installation
 
-Install the package using pip:
 
-```
+Install directly from PyPI:
+
+
+
+```bash
+
 pip install echo-feeling
-```
-
-Or install from the wheel file:
 
 ```
-pip install echo_feeling-1.0.0-py3-none-any.whl
-```
+
+
 
 ---
 
-# Quick Start
 
-### Import the Engine
+
+\## Usage
+
+
+
+Example usage:
+
+
 
 ```python
-from echo_feeling import EchoFeelingEngine
 
-engine = EchoFeelingEngine()
+from echo\_feeling.api import analyze
 
-result = engine.analyze(text="I love this product!")
+
+
+text = "I feel really happy today!"
+
+result = analyze(text)
+
+
 
 print(result)
+
 ```
+
+
 
 Example output:
 
+
+
 ```
-{
- "sentiment": "neutral",
- "confidence": 0.9
-}
+
+positive
+
 ```
+
+
 
 ---
 
-# Running the API Server
 
-You can start the REST API server like this:
 
-```python
-from echo_feeling.api import start_server
+\## Features
 
-start_server()
-```
 
-The server will run at:
 
-```
-http://127.0.0.1:5050
-```
+\* Simple emotion detection from text
 
----
+\* Lightweight and fast
 
-# API Documentation
+\* Easy integration into Python applications
 
-## Endpoint
+\* Works with Python 3.8+
 
-```
-POST /analyze
-```
 
-## Request Example
-
-```
-{
- "text": "Amazing product!"
-}
-```
-
-## Response Example
-
-```
-{
- "sentiment": "neutral",
- "confidence": 0.9
-}
-```
 
 ---
 
-# Python Integration Example
 
-```python
-import requests
 
-response = requests.post(
-    "http://localhost:5050/analyze",
-    json={"text": "Great product!"}
-)
+\## Project Structure
 
-print(response.json())
-```
 
----
-
-# JavaScript Integration Example
-
-```javascript
-fetch("http://localhost:5050/analyze", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ text: "Amazing product!" })
-})
-.then(res => res.json())
-.then(data => console.log(data));
-```
-
----
-
-# Example Use Cases
-
-* Customer review sentiment analysis
-* E-commerce admin dashboards
-* Customer feedback monitoring
-* Chat emotion detection
-* Product satisfaction analysis
-
----
-
-# Project Structure
 
 ```
-Echo_Feeling
+
+echo\_feeling/
+
 │
-├── echo_feeling
-│   ├── __init__.py
-│   ├── engine.py
-│   └── api.py
+
+├── echo\_feeling/
+
+│   ├── \_\_init\_\_.py
+
+│   ├── api.py
+
+│   └── engine.py
+
 │
-├── deployment_phase
-├── training_phase
-│
-├── setup.py
+
+├── README.md
+
 ├── requirements.txt
-└── README.md
+
+└── setup.py
+
 ```
 
----
 
-# Future Improvements
-
-* Deep learning sentiment model
-* Emoji emotion detection
-* Dashboard visualization
-* Real-time review analytics
-* SaaS deployment
 
 ---
 
-# Author
 
-Echo Feeling Project
-Developed for sentiment analysis and emotion detection in e-commerce platforms.
->>>>>>> be6e72be94471bf438f4b2e5c70eb676f234e013
+
+\## Example Use Cases
+
+
+
+Echo Feeling can be used in:
+
+
+
+\* Chatbots
+
+\* AI assistants
+
+\* Social media sentiment analysis
+
+\* Customer feedback analysis
+
+\* Mood tracking applications
+
+
+
+---
+
+
+
+\## Contributing
+
+
+
+Contributions are welcome!
+
+
+
+1\. Fork the repository
+
+2\. Create a new branch
+
+3\. Make your changes
+
+4\. Submit a pull request
+
+
+
+---
+
+
+
+\## License
+
+
+
+This project is licensed under the MIT License.
+
+
+
+---
+
+
+
+\## Links
+
+
+
+GitHub Repository:
+
+https://github.com/Becadyop/final
+
+
+
+PyPI Package:
+
+https://pypi.org/project/echo-feeling/
+
+
+
+---
+
+
+
+\## Author
+
+
+
+Created by Ivin,Romin,Arun,Swathilekshmi.
+
+
+
