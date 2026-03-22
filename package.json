@@ -1,0 +1,30 @@
+{
+  "name": "echo-feeling",
+  "version": "2.0.0",
+  "description": "Multimodal sentiment analysis for e-commerce — Node.js wrapper and Express integration.",
+  "main": "deployment_phase/sentiment_module.js",
+  "scripts": {
+    "start": "node deployment_phase/app.js",
+    "dev": "node --watch deployment_phase/app.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "sentiment",
+    "nlp",
+    "ecommerce",
+    "multimodal",
+    "emoji"
+  ],
+  "author": "Swathi Lekshmi SS, Romin Varghese, R Arun, Ivin Issac",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Becadyop/final"
+  },
+  "dependencies": {
+    "express": "^4.22.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

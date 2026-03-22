@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Echo Feeling — Admin Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg       : #0f1117;
+      --surface  : #1a1d27;
+      --surface2 : #22263a;
+      --border   : #2e3250;
+      --text      : #e2e8f0;
+      --muted     : #8892b0;
+      --positive  : #34d399;
+      --negative  : #f87171;
+      --neutral   : #60a5fa;
+      --suspicious: #fbbf24;
+      --accent    : #7c3aed;
+      --radius    : 14px;
+      --shadow    : 0 4px 24px rgba(0,0,0,0.4);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      padding: 0 24px 24px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+    .sidebar-logo span { color: var(--accent); }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-nav a.active, .sidebar-nav a:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+    .sidebar-nav a.active { border-left: 3px solid var(--accent); }
+
+    /* Main content */
+    .main { flex: 1; padding: 32px 36px; overflow-y: auto; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .topbar h1 { font-size: 1.4rem; font-weight: 600; }
+    .topbar .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Stat cards ───────────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-card .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-card .sub   { font-size: 0.78rem; color: var(--muted); }
+    .stat-card.positive .value { color: var(--positive); }
+    .stat-card.negative .value { color: var(--negative); }
+    .stat-card.neutral  .value { color: var(--neutral); }
+    .stat-card.suspicious .value { color: var(--suspicious); }
+
+    /* ── Charts row ───────────────────────────────────────────────── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .chart-card h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; color: var(--muted); }
+    .chart-wrap { position: relative; }
+
+    /* ── Product selector ─────────────────────────────────────────── */
+    .product-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .product-bar label { font-size: 0.85rem; color: var(--muted); }
+    .product-bar select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .product-bar select:focus { border-color: var(--accent); }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn.danger { background: var(--negative); }
+
+    /* ── Reviews table ────────────────────────────────────────────── */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .table-card h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; color: var(--muted); }
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { text-align: left; padding: 10px 12px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; }
+    td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.025); }
+    .sentiment-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    .pill-positive   { background: rgba(52,211,153,0.15); color: var(--positive); }
+    .pill-negative   { background: rgba(248,113,113,0.15); color: var(--negative); }
+    .pill-neutral    { background: rgba(96,165,250,0.15);  color: var(--neutral); }
+    .pill-suspicious { background: rgba(251,191,36,0.15);  color: var(--suspicious); }
+    .conf-bar { background: var(--border); border-radius: 4px; height: 6px; width: 80px; overflow: hidden; }
+    .conf-fill { height: 100%; border-radius: 4px; background: var(--accent); }
+    .action-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { border-color: var(--negative); color: var(--negative); }
+
+    /* ── Add review panel ─────────────────────────────────────────── */
+    .add-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .add-panel h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; color: var(--muted); }
+    .add-row { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+    .add-row textarea {
+      flex: 1;
+      min-width: 240px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 68px;
+      outline: none;
+    }
+    .add-row textarea:focus { border-color: var(--accent); }
+    .add-row select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      height: fit-content;
+    }
+    .result-toast {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .result-toast.show { display: block; }
+    .result-toast.positive   { background: rgba(52,211,153,0.12); border: 1px solid var(--positive); color: var(--positive); }
+    .result-toast.negative   { background: rgba(248,113,113,0.12); border: 1px solid var(--negative); color: var(--negative); }
+    .result-toast.neutral    { background: rgba(96,165,250,0.12);  border: 1px solid var(--neutral); color: var(--neutral); }
+    .result-toast.suspicious { background: rgba(251,191,36,0.12);  border: 1px solid var(--suspicious); color: var(--suspicious); }
+
+    /* ── Emoji trend chart ────────────────────────────────────────── */
+    .full-row { margin-bottom: 24px; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Echo <span>Feeling</span></div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active">📊 Dashboard</a>
+      <a href="#">🛍️ Products</a>
+      <a href="#">💬 Reviews</a>
+      <a href="#">⚠️ Flagged</a>
+      <a href="#">📈 Analytics</a>
+      <a href="#">⚙️ Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <h1>Sentiment Dashboard</h1>
+      <span class="badge">LIVE</span>
+    </div>
+
+    <!-- Product selector -->
+    <div class="product-bar">
+      <label>Product:</label>
+      <select id="productSelect" onchange="loadProduct()">
+        <option value="all">All Products</option>
+        <option value="P001">Wireless Earbuds (P001)</option>
+        <option value="P002">Laptop Stand (P002)</option>
+        <option value="P003">Smart Watch (P003)</option>
+        <option value="P004">USB Hub (P004)</option>
+      </select>
+      <button class="btn" onclick="refreshData()">↻ Refresh</button>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats">
+      <div class="stat-card positive">
+        <span class="label">Positive</span>
+        <span class="value" id="statPos">—</span>
+        <span class="sub" id="statPosPct">—% of reviews</span>
+      </div>
+      <div class="stat-card negative">
+        <span class="label">Negative</span>
+        <span class="value" id="statNeg">—</span>
+        <span class="sub" id="statNegPct">—% of reviews</span>
+      </div>
+      <div class="stat-card neutral">
+        <span class="label">Neutral</span>
+        <span class="value" id="statNeu">—</span>
+        <span class="sub" id="statNeuPct">—% of reviews</span>
+      </div>
+      <div class="stat-card suspicious">
+        <span class="label">Suspicious</span>
+        <span class="value" id="statSus">—</span>
+        <span class="sub" id="statSusPct">—% flagged</span>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h2>Sentiment Distribution</h2>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h2>Sentiment Over Time</h2>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emoji trend -->
+    <div class="full-row chart-card">
+      <h2>Top Emoji Sentiment Scores</h2>
+      <div class="chart-wrap" style="height:180px">
+        <canvas id="emojiChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Add review -->
+    <div class="add-panel">
+      <h2>Analyse a Review</h2>
+      <div class="add-row">
+        <textarea id="reviewInput" placeholder="Paste a customer review here… (emojis welcome 😊)"></textarea>
+        <select id="stickerSelect">
+          <option value="neutral">Sticker: Neutral</option>
+          <option value="positive">Sticker: Positive</option>
+          <option value="negative">Sticker: Negative</option>
+        </select>
+        <button class="btn" onclick="analyzeReview()">Analyse</button>
+      </div>
+      <div class="result-toast" id="resultToast"></div>
+    </div>
+
+    <!-- Reviews table -->
+    <div class="table-card">
+      <h2>Recent Reviews</h2>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterTable('all', this)">All</button>
+        <button class="filter-btn" onclick="filterTable('positive', this)">✅ Positive</button>
+        <button class="filter-btn" onclick="filterTable('negative', this)">❌ Negative</button>
+        <button class="filter-btn" onclick="filterTable('neutral', this)">➖ Neutral</button>
+        <button class="filter-btn" onclick="filterTable('suspicious', this)">⚠️ Suspicious</button>
+      </div>
+      <table id="reviewTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Review</th>
+            <th>Sentiment</th>
+            <th>Confidence</th>
+            <th>Emoji Score</th>
+            <th>Sticker</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reviewBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Mock data ──────────────────────────────────────────────────────────────
+const MOCK_PRODUCTS = {
+  all: {
+    counts: { positive: 2714, negative: 248, neutral: 163, suspicious: 87 },
+    emoji_trend: [0.72, 0.68, 0.81, 0.55, 0.74, 0.60, 0.78],
+    timeline: {
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+      positive:   [380, 420, 390, 440, 410, 460, 450],
+      negative:   [ 38,  30,  45,  28,  35,  22,  30],
+      neutral:    [ 22,  25,  18,  30,  20,  24,  18],
+      suspicious: [ 12,   8,  10,  14,   9,  11,   8],
+    }
+  },
+  P001: {
+    counts: { positive: 840, negative: 72, neutral: 48, suspicious: 21 },
+    emoji_trend: [0.80, 0.75, 0.88, 0.62, 0.79],
+    timeline: {
+      labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul"],
+      positive:   [110,125,118,130,122,140,135],
+      negative:   [ 11, 9, 13,  8, 10,  7,  9],
+      neutral:    [  7, 8,  5,  9,  6,  7,  5],
+      suspicious: [  3, 2,  3,  4,  2,  3,  2],
+    }
+  },
+  P002: {
+    counts: { positive: 620, negative: 55, neutral: 38, suspicious: 14 },
+    emoji_trend: [0.65, 0.70, 0.75, 0.58, 0.68],
+    timeline: {
+      labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul"],
+      positive:   [ 85, 90, 88,  95, 89, 98, 92],
+      negative:   [  8,  7,  9,   7,  8,  6,  8],
+      neutral:    [  5,  6,  4,   8,  5,  6,  4],
+      suspicious: [  2,  1,  2,   3,  1,  2,  1],
+    }
+  },
+  P003: {
+    counts: { positive: 780, negative: 90, neutral: 52, suspicious: 32 },
+    emoji_trend: [0.55, 0.60, 0.72, 0.48, 0.65],
+    timeline: {
+      labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul"],
+      positive:   [100,112,108,118,110,125,120],
+      negative:   [ 12, 11, 14,  10, 13,  9, 12],
+      neutral:    [  7,  8,  6,  10,  7,  8,  6],
+      suspicious: [  4,  3,  5,   5,  4,  5,  4],
+    }
+  },
+  P004: {
+    counts: { positive: 474, negative: 31, neutral: 25, suspicious: 20 },
+    emoji_trend: [0.78, 0.72, 0.82, 0.68, 0.76],
+    timeline: {
+      labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul"],
+      positive:   [ 65, 73, 76,  82, 79, 88, 85],
+      negative:   [  4,  3,  5,   3,  4,  3,  4],
+      neutral:    [  3,  3,  3,   4,  3,  4,  3],
+      suspicious: [  3,  2,  3,   3,  2,  3,  2],
+    }
+  },
+};
+
+const MOCK_REVIEWS = [
+  { text: "Absolutely love this product! 😍 Great quality.", label: "positive", conf: 0.94, emoji: 0.90, sticker: "positive" },
+  { text: "Terrible waste of money. Broke after one day 😡", label: "negative", conf: 0.91, emoji: -0.85, sticker: "negative" },
+  { text: "Decent quality, does what it says.", label: "neutral", conf: 0.72, emoji: 0.0, sticker: "neutral" },
+  { text: "BUY NOW!!! BEST PRODUCT EVER!!! Click here!!!", label: "suspicious", conf: 0.88, emoji: 0.0, sticker: "positive" },
+  { text: "Fast delivery and works perfectly 👍", label: "positive", conf: 0.89, emoji: 0.80, sticker: "positive" },
+  { text: "Product stopped working within a week 😢", label: "negative", conf: 0.85, emoji: -0.80, sticker: "negative" },
+  { text: "Not bad, not great. Average experience.", label: "neutral", conf: 0.68, emoji: 0.0, sticker: "neutral" },
+  { text: "Excellent build quality! Five stars! 🎉", label: "positive", conf: 0.96, emoji: 0.85, sticker: "positive" },
+];
+
+// ── Chart instances ────────────────────────────────────────────────────────
+let donutChart, lineChart, emojiChart;
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const pillHTML = (label) => `<span class="sentiment-pill pill-${label}">${label}</span>`;
+const confHTML = (c) => `
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="conf-bar"><div class="conf-fill" style="width:${Math.round(c*100)}%"></div></div>
+    <span style="font-size:0.78rem;color:var(--muted)">${Math.round(c*100)}%</span>
+  </div>`;
+const emojiScoreHTML = (s) => {
+  const col = s > 0.1 ? 'var(--positive)' : s < -0.1 ? 'var(--negative)' : 'var(--muted)';
+  return `<span style="color:${col};font-weight:600">${s >= 0 ? '+' : ''}${s.toFixed(2)}</span>`;
+};
+
+// ── Load product data ──────────────────────────────────────────────────────
+function loadProduct() {
+  const pid  = document.getElementById("productSelect").value;
+  const data = MOCK_PRODUCTS[pid] || MOCK_PRODUCTS.all;
+  const c    = data.counts;
+  const total = Object.values(c).reduce((a, b) => a + b, 0);
+
+  // Stat cards
+  document.getElementById("statPos").textContent    = c.positive.toLocaleString();
+  document.getElementById("statNeg").textContent    = c.negative.toLocaleString();
+  document.getElementById("statNeu").textContent    = c.neutral.toLocaleString();
+  document.getElementById("statSus").textContent    = c.suspicious.toLocaleString();
+  document.getElementById("statPosPct").textContent = `${(c.positive/total*100).toFixed(1)}% of reviews`;
+  document.getElementById("statNegPct").textContent = `${(c.negative/total*100).toFixed(1)}% of reviews`;
+  document.getElementById("statNeuPct").textContent = `${(c.neutral/total*100).toFixed(1)}% of reviews`;
+  document.getElementById("statSusPct").textContent = `${(c.suspicious/total*100).toFixed(1)}% flagged`;
+
+  // Donut chart
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById("donutChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Positive", "Negative", "Neutral", "Suspicious"],
+      datasets: [{
+        data: [c.positive, c.negative, c.neutral, c.suspicious],
+        backgroundColor: ["#34d399","#f87171","#60a5fa","#fbbf24"],
+        borderColor: "transparent",
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: "68%",
+      plugins: {
+        legend: { position: "right", labels: { color: "#8892b0", font: { size: 12 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed.toLocaleString()}` } }
+      }
+    }
+  });
+
+  // Line chart
+  const tl = data.timeline;
+  if (lineChart) lineChart.destroy();
+  lineChart = new Chart(document.getElementById("lineChart"), {
+    type: "line",
+    data: {
+      labels: tl.labels,
+      datasets: [
+        { label: "Positive",   data: tl.positive,   borderColor: "#34d399", backgroundColor: "rgba(52,211,153,0.08)", tension: 0.4, fill: true, pointRadius: 3 },
+        { label: "Negative",   data: tl.negative,   borderColor: "#f87171", backgroundColor: "rgba(248,113,113,0.08)", tension: 0.4, fill: true, pointRadius: 3 },
+        { label: "Neutral",    data: tl.neutral,    borderColor: "#60a5fa", backgroundColor: "transparent", tension: 0.4, pointRadius: 3, borderDash: [4,4] },
+        { label: "Suspicious", data: tl.suspicious, borderColor: "#fbbf24", backgroundColor: "transparent", tension: 0.4, pointRadius: 3, borderDash: [2,4] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: "#8892b0", font: { size: 11 }, boxWidth: 10 } } },
+      scales: {
+        x: { grid: { color: "#2e3250" }, ticks: { color: "#8892b0", font: { size: 11 } } },
+        y: { grid: { color: "#2e3250" }, ticks: { color: "#8892b0", font: { size: 11 } } },
+      }
+    }
+  });
+
+  // Emoji bar chart
+  const emojis = ["😍","❤️","👍","😊","🎉","😡","👎","💔","🤩","😢"];
+  const scores = data.emoji_trend.concat([0.85, 0.78, 0.72, -0.80, -0.75]).slice(0, emojis.length);
+  const colors = scores.map(s => s >= 0 ? "rgba(52,211,153,0.8)" : "rgba(248,113,113,0.8)");
+  if (emojiChart) emojiChart.destroy();
+  emojiChart = new Chart(document.getElementById("emojiChart"), {
+    type: "bar",
+    data: {
+      labels: emojis,
+      datasets: [{
+        data: scores,
+        backgroundColor: colors,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => ` Score: ${ctx.parsed.y.toFixed(2)}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: "#ccc", font: { size: 16 } } },
+        y: {
+          min: -1.0, max: 1.0,
+          grid: { color: "#2e3250" },
+          ticks: { color: "#8892b0", font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  renderTable(MOCK_REVIEWS);
+}
+
+// ── Table ──────────────────────────────────────────────────────────────────
+let currentFilter = "all";
+let tableData     = [...MOCK_REVIEWS];
+
+function renderTable(data) {
+  const body = document.getElementById("reviewBody");
+  const filtered = currentFilter === "all" ? data : data.filter(r => r.label === currentFilter);
+  body.innerHTML = filtered.map((r, i) => `
+    <tr data-label="${r.label}">
+      <td style="color:var(--muted)">${i + 1}</td>
+      <td style="max-width:320px">${r.text}</td>
+      <td>${pillHTML(r.label)}</td>
+      <td>${confHTML(r.conf)}</td>
+      <td>${emojiScoreHTML(r.emoji)}</td>
+      <td><span class="sentiment-pill pill-${r.sticker}">${r.sticker}</span></td>
+      <td><button class="action-btn" onclick="removeRow(this)">Remove</button></td>
+    </tr>
+  `).join("");
+}
+
+function filterTable(label, btn) {
+  currentFilter = label;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTable(tableData);
+}
+
+function removeRow(btn) {
+  const row = btn.closest("tr");
+  const idx = [...document.querySelectorAll("#reviewBody tr")].indexOf(row);
+  tableData.splice(idx, 1);
+  renderTable(tableData);
+}
+
+// ── Analyse a review ───────────────────────────────────────────────────────
+function analyzeReview() {
+  const text    = document.getElementById("reviewInput").value.trim();
+  const sticker = document.getElementById("stickerSelect").value;
+  const toast   = document.getElementById("resultToast");
+
+  if (!text) {
+    toast.className = "result-toast show negative";
+    toast.textContent = "⚠️ Please enter a review to analyse.";
+    return;
+  }
+
+  // Rule-based demo (fallback when server not running)
+  const posWords  = ["great","love","excellent","amazing","awesome","best","fantastic","perfect","wonderful"];
+  const negWords  = ["terrible","bad","horrible","worst","hate","broken","waste","fraud","disappointed"];
+  const lower     = text.toLowerCase();
+  const posCount  = posWords.filter(w => lower.includes(w)).length;
+  const negCount  = negWords.filter(w => lower.includes(w)).length;
+
+  let label, conf;
+  if (text.includes("!!!") && text === text.toUpperCase().slice(0, 10) + text.slice(10)) {
+    label = "suspicious"; conf = 0.88;
+  } else if (posCount > negCount) {
+    label = "positive"; conf = Math.min(0.7 + posCount * 0.06, 0.98);
+  } else if (negCount > posCount) {
+    label = "negative"; conf = Math.min(0.7 + negCount * 0.06, 0.98);
+  } else {
+    label = "neutral"; conf = 0.65;
+  }
+
+  // Emoji score
+  const positiveEmojis = ["😍","❤️","👍","😊","🎉","🤩","😄","💯","🥰"];
+  const negativeEmojis = ["😡","👎","💔","😢","😤","😠"];
+  let emojiScore = 0;
+  [...text].forEach(ch => {
+    if (positiveEmojis.includes(ch)) emojiScore += 0.8;
+    if (negativeEmojis.includes(ch)) emojiScore -= 0.8;
+  });
+  emojiScore = Math.max(-1, Math.min(1, emojiScore));
+
+  const icons = { positive: "✅", negative: "❌", neutral: "➖", suspicious: "⚠️" };
+  toast.className = `result-toast show ${label}`;
+  toast.innerHTML = `
+    ${icons[label]} <strong>${label.toUpperCase()}</strong> &nbsp;|&nbsp;
+    Confidence: ${Math.round(conf * 100)}% &nbsp;|&nbsp;
+    Emoji score: ${emojiScore >= 0 ? "+" : ""}${emojiScore.toFixed(2)} &nbsp;|&nbsp;
+    Sticker: ${sticker}
+  `;
+
+  // Add to table
+  tableData.unshift({ text, label, conf, emoji: emojiScore, sticker });
+  renderTable(tableData);
+  document.getElementById("reviewInput").value = "";
+}
+
+function refreshData() { loadProduct(); }
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadProduct();
+</script>
+</body>
+</html>

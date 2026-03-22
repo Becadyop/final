@@ -1,0 +1,24 @@
+# Echo Feeling – Python dependencies
+# Core ML & NLP
+scikit-learn>=1.4.0
+numpy>=1.26.0
+pandas>=2.2.0
+joblib>=1.3.0
+
+# NLP preprocessing
+nltk>=3.8.0
+emoji>=2.10.0
+
+# Optional: BERT embeddings (install separately if use_bert=True)
+# transformers>=4.40.0
+# torch>=2.2.0
+
+# Image processing (sticker loading)
+Pillow>=10.3.0
+
+# Deployment server
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Dev / testing
+pytest>=8.0.0
